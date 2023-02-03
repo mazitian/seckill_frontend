@@ -24,7 +24,7 @@
                 <span class="text">手机登录</span>
               </div>
             </template>
-            <pane-phone></pane-phone>
+            <pane-phone ref="phoneRef"></pane-phone>
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -37,7 +37,12 @@
           <span>注册帐号</span>
         </el-link>
       </div>
-      <el-button class="login-btn" type="primary" size="large">
+      <el-button
+        class="login-btn"
+        type="primary"
+        size="large"
+        @click="handleLoginBtnClick"
+      >
         立即登录
       </el-button>
     </div>
@@ -45,16 +50,22 @@
 </template>
 
 <script setup lang="ts">
-import router from '@/router';
-import { ref } from 'vue';
+import router from '@/router'
+
+import { ref } from 'vue'
 import PaneAccount from './c-cpns/pane-account.vue'
 import PanePhone from './c-cpns/pane-phone.vue'
+
+const phoneRef = ref<InstanceType<typeof PanePhone>>()
 
 const activeName = ref('phone')
 const registerClick = () => {
   router.push('register')
 }
 
+function handleLoginBtnClick() {
+  phoneRef.value?.loginAction()
+}
 </script>
 
 <style lang="less" scoped>

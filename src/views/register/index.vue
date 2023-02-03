@@ -1,13 +1,13 @@
 <template>
   <div class="register">
     <el-form class="item" :model="user" :rules="userRules" ref="userRef">
-      <el-form-item label="头像">
+      <el-form-item label="headImg">
         <el-input v-model="user.headImg" />
       </el-form-item>
-      <el-form-item label="昵称">
+      <el-form-item label="昵称" prop="nickName">
         <el-input v-model="user.nickName" />
       </el-form-item>
-      <el-form-item label="密码">
+      <el-form-item label="密码" prop="password">
         <el-input v-model="user.password" show-password />
       </el-form-item>
       <el-form-item label="性别">
@@ -39,7 +39,9 @@
         </div>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="registerBtnClick">注册</el-button>
+        <el-button type="primary" @click="registerBtnClick"
+          >注册并登录</el-button
+        >
         <el-button @click="backBtnClick">返回</el-button>
       </el-form-item>
     </el-form>
@@ -50,6 +52,7 @@
 import { reactive, ref } from 'vue'
 import type { IUser } from '@/types'
 import type { ElForm, FormRules, ElInput } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import useRegisterStore from '@/stores/register/register'
 import CountDown from '@/components/countdown/index.vue'
 import router from '@/router'
@@ -61,15 +64,30 @@ const user = reactive<IUser>({
   nickName: '',
   password: '',
   phone: '',
-  sex: 0
+  sex: ''
 })
 
 const userRules: FormRules = {
+  nickName: [
+    { required: true, message: '必须输入昵称~', trigger: 'blur' },
+    {
+      message: '必须输入昵称~',
+      trigger: 'blur'
+    }
+  ],
   phone: [
     { required: true, message: '必须输入手机号~', trigger: 'blur' },
     {
       pattern: /^[0-9]{11}$/,
       message: '必须是11位数字的有效号码~',
+      trigger: 'blur'
+    }
+  ],
+  password: [
+    { required: true, message: '必须输入密码信息~', trigger: 'blur' },
+    {
+      pattern: /^[a-z0-9]{3,}$/,
+      message: '必须是3位以上数字或字母组成',
       trigger: 'blur'
     }
   ]
@@ -80,6 +98,7 @@ const countdownRef = ref<InstanceType<typeof CountDown>>()
 const isDisabled = ref<boolean>(false)
 const isShow = ref<boolean>(false)
 const registerStore = useRegisterStore()
+const phonePattern = /^[0-9]{11}$/
 
 const registerBtnClick = () => {
   const birthday = user.birthday
@@ -101,16 +120,20 @@ const registerBtnClick = () => {
 }
 
 const codeBtnClick = () => {
-  registerStore.getCodeAction().then(() => {
-    user.messageCode = registerStore.code + ''
-    isDisabled.value = true
-    isShow.value = true
-    countdownRef.value?.countdown()
-    setTimeout(() => {
-      isDisabled.value = false
-      isShow.value = false
-    }, 10000)
-  })
+  if (phonePattern.test(user.phone)) {
+    registerStore.getCodeAction().then(() => {
+      user.messageCode = registerStore.code + ''
+      isDisabled.value = true
+      isShow.value = true
+      countdownRef.value?.countdown()
+      setTimeout(() => {
+        isDisabled.value = false
+        isShow.value = false
+      }, 10000)
+    })
+  } else {
+    ElMessage.error('Oops, 请您输入正确的手机号码后再操作~~.')
+  }
 }
 
 const backBtnClick = () => {

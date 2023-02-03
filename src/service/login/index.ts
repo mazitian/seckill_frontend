@@ -1,10 +1,10 @@
 import { hyRequest1 } from '..'
-import type { IUser } from '@/types'
+import type { IPhone } from '@/types'
 
-export function userRegisterRequest(user: IUser) {
+export function phoneLoginRequest(phone: IPhone) {
   return hyRequest1.post({
-    url: '/api/user/register',
-    data: user
+    url: '/api/user/login',
+    data: phone
   })
 }
 

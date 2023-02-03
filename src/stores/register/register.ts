@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 
 import type { IUser } from '@/types'
-import { useCodeRequest, userRegisterRequest } from '@/service/register'
+import { getCodeRequest, userRegisterRequest } from '@/service/register'
 import { localCache } from '@/utils/cache'
 import { LOGIN_TOKEN } from '@/global/constants'
 import router from '@/router'
@@ -18,11 +18,11 @@ interface IRegisterState {
 const useRegisterStore = defineStore('register', {
   state: (): IRegisterState => ({
     token: '',
-    id: 0,
+    id: -1,
     headImg: '',
     nickName: '',
-    status: 0,
-    code: 0
+    status: -1,
+    code: -1
   }),
   actions: {
     async registerUserAction(user: IUser) {
@@ -34,11 +34,15 @@ const useRegisterStore = defineStore('register', {
       this.nickName = registerResult.data.nickName
       this.status = registerResult.data.status
       localCache.setCache(LOGIN_TOKEN, this.token)
-      router.push('/main')
+      if (this.code !== -1) {
+        router.push('/main')
+      } else {
+        alert('请输入手机号和验证码！')
+      }
     },
     async getCodeAction() {
       // 2.获取MessageCode
-      const codeResult = await useCodeRequest()
+      const codeResult = await getCodeRequest()
       this.code = codeResult.data.code
     }
   }
